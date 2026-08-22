@@ -24,4 +24,26 @@ public class CarService {
     public Car getCarById(Long id){
         return carRepository.findById(id).orElseThrow(() -> new RuntimeException("Car not found."));
     }
+
+    public void deleteCarById(Long id){
+        carRepository.deleteById(id);
+        System.out.println("Deleting was successfully.");
+    }
+
+    public Car updateCar(Long id, Car updatedCar){
+
+        Car car = carRepository.findById(id).orElseThrow(() -> new RuntimeException("Car not found."));
+
+        car.setBrand(updatedCar.getBrand());
+        car.setModel(updatedCar.getModel());
+        car.setBodyType(updatedCar.getBodyType());
+        car.setPrice(updatedCar.getPrice());
+        car.setImage(updatedCar.getImage());
+        car.setYear(updatedCar.getYear());
+        car.setTransmission(updatedCar.getTransmission());
+        car.setFuel(updatedCar.getFuel());
+        car.setSeats(updatedCar.getSeats());
+        car.setStatus(updatedCar.getStatus());
+        return carRepository.save(car);
+    }
 }

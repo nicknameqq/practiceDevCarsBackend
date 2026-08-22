@@ -29,4 +29,16 @@ public class CarController {
     public Car getCarById(@PathVariable Long id){
         return carService.getCarById(id);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteCarById(@PathVariable Long id){
+        carService.deleteCarById(id);
+    }
+
+    @PutMapping("/{id}")
+    public Car updateCarById(@PathVariable Long id,
+                             @RequestBody Car car){
+        return  carService.updateCar(id, car);
+    }
+
 }
