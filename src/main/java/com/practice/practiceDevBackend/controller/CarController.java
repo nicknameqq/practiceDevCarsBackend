@@ -2,6 +2,7 @@ package com.practice.practiceDevBackend.controller;
 
 import com.practice.practiceDevBackend.entity.Car;
 import com.practice.practiceDevBackend.service.CarService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,27 +23,32 @@ public class CarController {
         return ResponseEntity.ok(carService.getAllCars());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Car> getCarById(@PathVariable Long id){
+        return ResponseEntity.ok(carService.getCarById(id)); // те ж саме return ResponseEntity.ok().body(user);
+    }
+
+
     @PostMapping
-    public ResponseEntity<Car> createCar(@RequestBody Car car){
+    public ResponseEntity<Car> createCar(@Valid @RequestBody Car car){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(carService.createCar(car));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Car> getCarById(@PathVariable Long id){
-        return ResponseEntity.ok(carService.getCarById(id)); // те ж саме return ResponseEntity.ok().body(user);
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Car> updateCarById(@PathVariable Long id,
+                                             @Valid @RequestBody Car car){
+        return  ResponseEntity.ok(carService.updateCar(id, car));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Car> deleteCarById(@PathVariable Long id){
         return ResponseEntity.status(HttpStatus.OK).body(carService.deleteCarById(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Car> updateCarById(@PathVariable Long id,
-                             @RequestBody Car car){
-        return  ResponseEntity.ok(carService.updateCar(id, car));
-    }
+
 
 }

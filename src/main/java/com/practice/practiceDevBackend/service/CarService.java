@@ -1,6 +1,7 @@
 package com.practice.practiceDevBackend.service;
 
 import com.practice.practiceDevBackend.entity.Car;
+import com.practice.practiceDevBackend.exception.CarNotFoundException;
 import com.practice.practiceDevBackend.repository.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,19 +23,19 @@ public class CarService {
     }
 
     public Car getCarById(Long id){
-        return carRepository.findById(id).orElseThrow(() -> new RuntimeException("Car not found."));
+        return carRepository.findById(id).orElseThrow(() -> new CarNotFoundException("Car not found."));
     }
 
     public Car deleteCarById(Long id){
         Car car = carRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Car not found"));
+                .orElseThrow(() -> new CarNotFoundException("Car not found"));
         carRepository.delete(car);
         System.out.println("Deleting was successfully.");
         return car;
     }
 
     public Car updateCar(Long id, Car updatedCar){
-        Car car = carRepository.findById(id).orElseThrow(() -> new RuntimeException("Car not found."));
+        Car car = carRepository.findById(id).orElseThrow(() -> new CarNotFoundException("Car not found."));
 
         car.setBrand(updatedCar.getBrand());
         car.setModel(updatedCar.getModel());
