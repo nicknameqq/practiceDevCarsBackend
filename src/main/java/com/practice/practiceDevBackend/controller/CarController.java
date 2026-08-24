@@ -1,5 +1,6 @@
 package com.practice.practiceDevBackend.controller;
 
+import com.practice.practiceDevBackend.dto.car.CarFilter;
 import com.practice.practiceDevBackend.dto.car.CarRequest;
 import com.practice.practiceDevBackend.dto.car.CarResponse;
 import com.practice.practiceDevBackend.service.CarService;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.util.List;
 
 @RestController // этот класс обрабатывает HTTP-запросы и возвращает данные, например JSON.
 @RequestMapping("/api/cars") // эЗадаёт общий адрес для всех методов Controller.
@@ -22,8 +22,11 @@ public class CarController {
     private final CarService carService;
 
     @GetMapping
-    public ResponseEntity<Page<CarResponse>> getAllCars(@PageableDefault(size = 12) Pageable pageable) {
-        return ResponseEntity.ok(carService.getAllCars(pageable));
+    public ResponseEntity<Page<CarResponse>> getAllCars(
+            @Valid CarFilter filter,
+            @PageableDefault(size = 12) Pageable pageable)
+    {
+        return ResponseEntity.ok(carService.getAllCars(filter, pageable));
     }
 
     @GetMapping("/{id}")
