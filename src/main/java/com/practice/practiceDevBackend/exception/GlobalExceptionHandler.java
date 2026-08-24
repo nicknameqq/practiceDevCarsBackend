@@ -8,14 +8,18 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tools.jackson.databind.exc.InvalidFormatException;
+
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    //Помилка валідації
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException exception
@@ -29,7 +33,6 @@ public class GlobalExceptionHandler {
                                 error.getDefaultMessage()
                         ));
 
-
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(
@@ -37,10 +40,11 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+
     @ExceptionHandler(CarNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCarNotFoundException(
             CarNotFoundException exception
-    ){
+    ) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(
@@ -49,16 +53,49 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+
+    //Помилка невірного Body
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleMessageNotReadable(
-            HttpMessageNotReadableException exception
-    ) {
+    public ResponseEntity<ErrorResponse> handleInvalidEnum(
+            HttpMessageNotReadableException ex) {
+
+        Throwable cause = ex.getCause();
+        // Проверяем, вызвано ли исключение ошибкой формата Jackson
+        if (cause instanceof InvalidFormatException invalidFormatException) {
+            Class<?> targetType = invalidFormatException.getTargetType();
+            // Проверяем, что ошибка произошла именно при десериализации Enum
+            if (targetType != null && targetType.isEnum()) {
+
+
+                // Получаем имя поля из пути JSON (например, "fuelType")
+                String fieldName = invalidFormatException.getPath().isEmpty() ? "unknown" :
+                        invalidFormatException.getPath().get(invalidFormatException.getPath().size() - 1).getPropertyName();
+
+                // Неверное значение
+                String invalidValue = String.valueOf(
+                        invalidFormatException.getValue()
+                );
+
+                // Список всех возможных констант из Enum
+                String possibleValues = Arrays.stream(targetType.getEnumConstants())
+                        .map(Object::toString)
+                        .collect(Collectors.joining(", "));
+
+                String message = String.format( "EnumType is incorrect. Possible values are %s",possibleValues);
+                 Map<String,String> errors = new HashMap<>();
+                 errors.put(
+                         fieldName, invalidValue
+                 );
+
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message, errors));
+            }
+        }
+
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
-                        "Invalid request body"
-                ));
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Incorrect request format."));
     }
 
 }
