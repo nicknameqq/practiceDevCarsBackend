@@ -1,7 +1,6 @@
-package com.practice.practiceDevBackend.response;
+package com.practice.practiceDevBackend.dto.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.util.Map;

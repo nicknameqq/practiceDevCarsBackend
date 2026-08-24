@@ -7,9 +7,10 @@ import com.practice.practiceDevBackend.exception.CarNotFoundException;
 import com.practice.practiceDevBackend.mapper.CarMapper;
 import com.practice.practiceDevBackend.repository.CarRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service //обозначает для Spring что это сервисный Spring-компонент (Bean), в котором обычно находится бизнес-логика.
 @RequiredArgsConstructor // автоматически генерирует в классе конструктор для всех полей, отмеченных как final, а также для полей с аннотацией @NonNull.
@@ -18,11 +19,9 @@ public class CarService {
     private final CarRepository carRepository;
     private final CarMapper carMapper;
 
-    public List<CarResponse> getAllCars() {
-        return carRepository.findAll()
-                .stream()
-                .map(carMapper::toResponse)
-                .toList(); // — готовый метод Spring Data JPA, который выполнит запрос примерно: "SELECT * FROM cars;"
+    public Page<CarResponse> getAllCars(Pageable pageable) {
+        return carRepository.findAll(pageable)
+                .map(carMapper::toResponse);
     }
 
     public CarResponse createCar(CarRequest request) {
@@ -53,4 +52,6 @@ public class CarService {
         Car updatedCar = carRepository.save(car);
         return carMapper.toResponse(updatedCar);
     }
+
+
 }

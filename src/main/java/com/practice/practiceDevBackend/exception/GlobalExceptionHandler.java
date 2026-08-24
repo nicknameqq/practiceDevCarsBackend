@@ -1,6 +1,6 @@
 package com.practice.practiceDevBackend.exception;
 
-import com.practice.practiceDevBackend.response.ErrorResponse;
+import com.practice.practiceDevBackend.dto.error.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -13,8 +13,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {

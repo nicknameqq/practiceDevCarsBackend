@@ -5,10 +5,12 @@ import com.practice.practiceDevBackend.dto.car.CarResponse;
 import com.practice.practiceDevBackend.service.CarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @RestController // этот класс обрабатывает HTTP-запросы и возвращает данные, например JSON.
@@ -19,9 +21,9 @@ public class CarController {
 
     private final CarService carService;
 
-    @GetMapping //этот метод обрабатывает GET /api/cars.
-    public ResponseEntity<List<CarResponse>> getAllCars(){
-        return ResponseEntity.ok(carService.getAllCars());
+    @GetMapping
+    public ResponseEntity<Page<CarResponse>> getAllCars(@PageableDefault(size = 12) Pageable pageable) {
+        return ResponseEntity.ok(carService.getAllCars(pageable));
     }
 
     @GetMapping("/{id}")
