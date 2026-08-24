@@ -4,6 +4,7 @@ import com.practice.practiceDevBackend.dto.car.CarRequest;
 import com.practice.practiceDevBackend.dto.car.CarResponse;
 import com.practice.practiceDevBackend.entity.Car;
 import com.practice.practiceDevBackend.exception.CarNotFoundException;
+import com.practice.practiceDevBackend.mapper.CarMapper;
 import com.practice.practiceDevBackend.repository.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,75 +16,41 @@ import java.util.List;
 public class CarService {
 
     private final CarRepository carRepository;
+    private final CarMapper carMapper;
 
     public List<CarResponse> getAllCars() {
         return carRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(carMapper::toResponse)
                 .toList(); // — готовый метод Spring Data JPA, который выполнит запрос примерно: "SELECT * FROM cars;"
     }
 
-    public CarResponse createCar(CarRequest request){
-        Car car = new Car();
-        car.setBrand(request.getBrand());
-        car.setModel(request.getModel());
-        car.setBodyType(request.getBodyType());
-        car.setPrice(request.getPrice());
-        car.setImage(request.getImage());
-        car.setYear(request.getYear());
-        car.setTransmission(request.getTransmission());
-        car.setFuel(request.getFuel());
-        car.setSeats(request.getSeats());
-        car.setStatus(request.getStatus());
-        return toResponse(carRepository.save(car));
+    public CarResponse createCar(CarRequest request) {
+        Car car = carMapper.toEntity(request);
+        Car savedCar = carRepository.save(car);
+        return carMapper.toResponse(savedCar);
     }
 
-    public CarResponse getCarById(Long id){
+    public CarResponse getCarById(Long id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new CarNotFoundException("Car not found."));
-        return toResponse(car);
+        return carMapper.toResponse(car);
     }
 
-    public CarResponse deleteCarById(Long id){
+    public CarResponse deleteCarById(Long id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new CarNotFoundException("Car not found."));
         carRepository.delete(car);
         System.out.println("Deleting was successfully.");
-        return toResponse(car);
+        return carMapper.toResponse(car);
     }
 
-    public CarResponse updateCar(Long id, CarRequest request){
+    public CarResponse updateCar(Long id, CarRequest request) {
         Car car = carRepository.findById(id).orElseThrow(() -> new CarNotFoundException("Car not found."));
 
-        car.setBrand(request.getBrand());
-        car.setModel(request.getModel());
-        car.setBodyType(request.getBodyType());
-        car.setPrice(request.getPrice());
-        car.setImage(request.getImage());
-        car.setYear(request.getYear());
-        car.setTransmission(request.getTransmission());
-        car.setFuel(request.getFuel());
-        car.setSeats(request.getSeats());
-        car.setStatus(request.getStatus());
+        carMapper.updateEntity(car, request);
+
         Car updatedCar = carRepository.save(car);
-        return toResponse(updatedCar);
-    }
-
-    private CarResponse toResponse(Car car) {
-
-        CarResponse response = new CarResponse();
-
-        response.setId(car.getId());
-        response.setBrand(car.getBrand());
-        response.setModel(car.getModel());
-        response.setBodyType(car.getBodyType());
-        response.setPrice(car.getPrice());
-        response.setImage(car.getImage());
-        response.setYear(car.getYear());
-        response.setTransmission(car.getTransmission());
-        response.setFuel(car.getFuel());
-        response.setSeats(car.getSeats());
-        response.setStatus(car.getStatus());
-        return response;
+        return carMapper.toResponse(updatedCar);
     }
 }
