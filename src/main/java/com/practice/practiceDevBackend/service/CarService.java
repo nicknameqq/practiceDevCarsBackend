@@ -25,13 +25,15 @@ public class CarService {
         return carRepository.findById(id).orElseThrow(() -> new RuntimeException("Car not found."));
     }
 
-    public void deleteCarById(Long id){
-        carRepository.deleteById(id);
+    public Car deleteCarById(Long id){
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Car not found"));
+        carRepository.delete(car);
         System.out.println("Deleting was successfully.");
+        return car;
     }
 
     public Car updateCar(Long id, Car updatedCar){
-
         Car car = carRepository.findById(id).orElseThrow(() -> new RuntimeException("Car not found."));
 
         car.setBrand(updatedCar.getBrand());
