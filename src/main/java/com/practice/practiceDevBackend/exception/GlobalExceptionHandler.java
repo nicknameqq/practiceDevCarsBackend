@@ -56,42 +56,55 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException ex) {
 
         Throwable cause = ex.getCause();
-        // Проверяем, вызвано ли исключение ошибкой формата Jackson
-        if (cause instanceof InvalidFormatException invalidFormatException) {
+
+        if (cause instanceof InvalidFormatException) {
+
+            InvalidFormatException invalidFormatException =
+                    (InvalidFormatException) cause;
+
             Class<?> targetType = invalidFormatException.getTargetType();
-            // Проверяем, что ошибка произошла именно при десериализации Enum
+
             if (targetType != null && targetType.isEnum()) {
 
+                String fieldName = invalidFormatException.getPath().isEmpty()
+                        ? "unknown"
+                        : invalidFormatException.getPath()
+                        .get(invalidFormatException.getPath().size() - 1)
+                        .getPropertyName();
 
-                // Получаем имя поля из пути JSON (например, "fuelType")
-                String fieldName = invalidFormatException.getPath().isEmpty() ? "unknown" :
-                        invalidFormatException.getPath().get(invalidFormatException.getPath().size() - 1).getPropertyName();
-
-                // Неверное значение
                 String invalidValue = String.valueOf(
                         invalidFormatException.getValue()
                 );
 
-                // Список всех возможных констант из Enum
                 String possibleValues = Arrays.stream(targetType.getEnumConstants())
                         .map(Object::toString)
                         .collect(Collectors.joining(", "));
 
-                String message = String.format( "EnumType is incorrect. Possible values are %s",possibleValues);
-                 Map<String,String> errors = new HashMap<>();
-                 errors.put(
-                         fieldName, invalidValue
-                 );
+                String message = String.format(
+                        "EnumType is incorrect. Possible values are %s",
+                        possibleValues
+                );
+
+                Map<String, String> errors = new HashMap<>();
+                errors.put(fieldName, invalidValue);
 
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
-                        .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message, errors));
+                        .body(new ErrorResponse(
+                                HttpStatus.BAD_REQUEST.value(),
+                                message,
+                                errors
+                        ));
             }
         }
 
+        // Если ошибка не InvalidFormatException или targetType не Enum
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Incorrect request format."));
+                .body(new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Incorrect request format."
+                ));
     }
 
     @ExceptionHandler(BookingDateAlreadyBookedException.class)
@@ -125,7 +138,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
     public ResponseEntity<ErrorResponse> handleEmailAlreadyRegisteredException(EmailAlreadyRegisteredException exception){
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(HttpStatus.CONTINUE.value(), exception.getMessage()));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(HttpStatus.CONFLICT.value(), exception.getMessage()));
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)

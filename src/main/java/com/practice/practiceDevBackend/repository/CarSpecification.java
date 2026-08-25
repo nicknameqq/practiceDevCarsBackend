@@ -1,8 +1,10 @@
 package com.practice.practiceDevBackend.repository;
 
 import com.practice.practiceDevBackend.entity.Car;
+import com.practice.practiceDevBackend.entity.enums.CarStatus;
 import com.practice.practiceDevBackend.entity.enums.Transmission;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.parameters.P;
 
 import java.math.BigDecimal;
 
@@ -47,6 +49,21 @@ public class CarSpecification {
                 );
     }
 
+    public static Specification<Car> filterByStatus(CarStatus status) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(
+                        root.get("status"),
+                        status
+                );
+    }
+
+    public static Specification<Car> isAvailableForCatalog() {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.notEqual(
+                        root.get("status"),
+                        CarStatus.UNAVAILABLE
+                );
+    }
 
 
 }

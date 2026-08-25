@@ -1,5 +1,6 @@
 package com.practice.practiceDevBackend.entity;
 
+import com.practice.practiceDevBackend.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,4 +25,8 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
 }

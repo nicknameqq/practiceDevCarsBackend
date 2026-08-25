@@ -5,6 +5,7 @@ import com.practice.practiceDevBackend.dto.auth.LoginResponse;
 import com.practice.practiceDevBackend.dto.auth.RegisterRequest;
 import com.practice.practiceDevBackend.dto.auth.RegisterResponse;
 import com.practice.practiceDevBackend.entity.User;
+import com.practice.practiceDevBackend.entity.enums.UserRole;
 import com.practice.practiceDevBackend.exception.EmailAlreadyRegisteredException;
 import com.practice.practiceDevBackend.exception.InvalidCredentialsException;
 import com.practice.practiceDevBackend.mapper.UserMapper;
@@ -30,7 +31,7 @@ public class AuthService {
         User user = userMapper.toEntity(request);
         user.setPassword(
                 passwordEncoder.encode(request.getPassword()));
-
+        user.setRole(UserRole.USER);
         userRepository.save(user);
         System.out.println("Creating was successfully.");
         return userMapper.toResponse(user);

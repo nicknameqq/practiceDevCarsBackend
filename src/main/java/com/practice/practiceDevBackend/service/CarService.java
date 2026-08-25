@@ -4,6 +4,7 @@ import com.practice.practiceDevBackend.dto.car.CarFilter;
 import com.practice.practiceDevBackend.dto.car.CarRequest;
 import com.practice.practiceDevBackend.dto.car.CarResponse;
 import com.practice.practiceDevBackend.entity.Car;
+import com.practice.practiceDevBackend.entity.enums.CarStatus;
 import com.practice.practiceDevBackend.exception.CarNotFoundException;
 import com.practice.practiceDevBackend.mapper.CarMapper;
 import com.practice.practiceDevBackend.repository.CarRepository;
@@ -23,7 +24,8 @@ public class CarService {
     private final CarMapper carMapper;
 
     public Page<CarResponse> getAllCars(CarFilter filter, Pageable pageable) {
-        Specification<Car> specification = null;
+        Specification<Car> specification =
+                CarSpecification.isAvailableForCatalog();
 
         if (filter.getBrand() != null && !filter.getBrand().isBlank()) {
             specification = CarSpecification.filteredByBrand(filter.getBrand());
@@ -97,9 +99,10 @@ public class CarService {
     public CarResponse deleteCarById(Long id) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new CarNotFoundException("Car not found."));
-        carRepository.delete(car);
-        System.out.println("Deleting was successfully.");
-        return carMapper.toResponse(car);
+        car.setStatus(CarStatus.UNAVAILABLE);
+
+        Car updatedCar = carRepository.save(car);
+        return carMapper.toResponse(updatedCar);
     }
 
     public CarResponse updateCar(Long id, CarRequest request) {
