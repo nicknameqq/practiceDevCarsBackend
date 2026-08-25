@@ -10,6 +10,7 @@ import com.practice.practiceDevBackend.exception.EmailAlreadyRegisteredException
 import com.practice.practiceDevBackend.exception.InvalidCredentialsException;
 import com.practice.practiceDevBackend.mapper.UserMapper;
 import com.practice.practiceDevBackend.repository.UserRepository;
+import com.practice.practiceDevBackend.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final JwtService jwtService;
 
     public RegisterResponse register(RegisterRequest request){
 
@@ -38,6 +40,7 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request){
+        System.out.println(passwordEncoder.encode("temporary-password"));
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException(
@@ -47,6 +50,8 @@ public class AuthService {
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid email or password.");
         }
-        return new LoginResponse(user.getUsername(), user.getEmail());
+
+        String token = jwtService.generateToken(user.getEmail());
+        return new LoginResponse(user.getUsername(), user.getEmail(), token);
     }
 }
