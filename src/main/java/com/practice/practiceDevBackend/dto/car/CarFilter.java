@@ -19,6 +19,4 @@ public class CarFilter {
     private BigDecimal minPrice;
     @PositiveOrZero(message = "Maximum price cannot be negative.")
     private BigDecimal maxPrice;
-
-
 }

@@ -4,7 +4,6 @@ import com.practice.practiceDevBackend.dto.car.CarFilter;
 import com.practice.practiceDevBackend.dto.car.CarRequest;
 import com.practice.practiceDevBackend.dto.car.CarResponse;
 import com.practice.practiceDevBackend.entity.Car;
-import com.practice.practiceDevBackend.entity.enums.Transmission;
 import com.practice.practiceDevBackend.exception.CarNotFoundException;
 import com.practice.practiceDevBackend.mapper.CarMapper;
 import com.practice.practiceDevBackend.repository.CarRepository;

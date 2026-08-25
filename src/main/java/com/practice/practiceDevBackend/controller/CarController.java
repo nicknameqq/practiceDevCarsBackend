@@ -21,6 +21,7 @@ public class CarController {
 
     private final CarService carService;
 
+    //У Spring Data ми замінюємо звичайний список List<Message> на Page<Message>, щоб увімкнути автоматичну пагінацію на рівні бази даних та отримати метадані про сторінки.
     @GetMapping
     public ResponseEntity<Page<CarResponse>> getAllCars(
             @Valid CarFilter filter,

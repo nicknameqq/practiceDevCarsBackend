@@ -40,9 +40,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(CarNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCarNotFoundException(
-            CarNotFoundException exception
-    ) {
+    public ResponseEntity<ErrorResponse> handleCarNotFoundException(CarNotFoundException exception) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse(
@@ -96,4 +94,32 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Incorrect request format."));
     }
 
+    @ExceptionHandler(BookingDateAlreadyBookedException.class)
+    public ResponseEntity<ErrorResponse> handleBookingDateAlreadyBookedException(BookingDateAlreadyBookedException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(
+                        HttpStatus.CONFLICT.value(), exception.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(CarNotAvailableException.class)
+    public ResponseEntity<ErrorResponse> handleCarNotAvailableException(CarNotAvailableException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(HttpStatus.CONFLICT.value(), exception.getMessage()));
+    }
+
+    @ExceptionHandler(BookingNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBookingNotFoundException(BookingNotFoundException exception){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getMessage()));
+    }
+
+    @ExceptionHandler(BookingAlreadyCancelledException.class)
+    public ResponseEntity<ErrorResponse> handleBookingAlreadyCancelledException(BookingAlreadyCancelledException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(HttpStatus.CONFLICT.value(), exception.getMessage()));
+    }
+    @ExceptionHandler(BookingCannotBeCanceledException.class)
+    public ResponseEntity<ErrorResponse> handleBookingCannotBeCancelledException(BookingCannotBeCanceledException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(HttpStatus.CONFLICT.value(), exception.getMessage()));
+    }
 }
