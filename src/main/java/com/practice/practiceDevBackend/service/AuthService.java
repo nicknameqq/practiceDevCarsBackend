@@ -40,7 +40,6 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest request){
-        System.out.println(passwordEncoder.encode("temporary-password"));
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException(

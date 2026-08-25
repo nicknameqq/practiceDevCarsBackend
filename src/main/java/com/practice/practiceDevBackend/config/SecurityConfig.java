@@ -1,8 +1,11 @@
 package com.practice.practiceDevBackend.config;
 
+import com.practice.practiceDevBackend.repository.UserRepository;
 import com.practice.practiceDevBackend.security.JwtAuthenticationFilter;
+import com.practice.practiceDevBackend.security.JwtService;
 import com.practice.practiceDevBackend.security.SecurityExceptionHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,33 +17,65 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
     private final SecurityExceptionHandler securityExceptionHandler;
 
-
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
-        httpSecurity.csrf(csrf -> csrf.disable())
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtService jwtService,
+            UserRepository userRepository
+    ) {
+        return new JwtAuthenticationFilter(
+                jwtService,
+                userRepository
+        );
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration(
+            JwtAuthenticationFilter filter
+    ) {
+        FilterRegistrationBean<JwtAuthenticationFilter> registration =
+                new FilterRegistrationBean<>(filter);
+
+        registration.setEnabled(false);
+
+        return registration;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity httpSecurity,
+            JwtAuthenticationFilter jwtAuthenticationFilter
+    ) throws Exception {
+
+        httpSecurity
+                .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/cars/**").permitAll()
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers("/api/profile/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                )
+
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(securityExceptionHandler)
                         .accessDeniedHandler(securityExceptionHandler)
                 )
+
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
                 );
+
         return httpSecurity.build();
     }
 }

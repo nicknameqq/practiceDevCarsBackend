@@ -4,8 +4,10 @@ import com.practice.practiceDevBackend.dto.booking.BookingRequest;
 import com.practice.practiceDevBackend.dto.booking.BookingResponse;
 import com.practice.practiceDevBackend.entity.Booking;
 import com.practice.practiceDevBackend.entity.Car;
+import com.practice.practiceDevBackend.entity.User;
 import com.practice.practiceDevBackend.entity.enums.BookingStatus;
 import com.practice.practiceDevBackend.entity.enums.CarStatus;
+import com.practice.practiceDevBackend.entity.enums.UserRole;
 import com.practice.practiceDevBackend.exception.*;
 import com.practice.practiceDevBackend.mapper.BookingMapper;
 import com.practice.practiceDevBackend.repository.BookingRepository;
@@ -13,6 +15,8 @@ import com.practice.practiceDevBackend.repository.CarRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
@@ -25,7 +29,14 @@ public class BookingService {
     private final CarRepository carRepository;
     private final BookingMapper bookingMapper;
 
-    public BookingResponse createBooking(BookingRequest request) {
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
+    }
+
+
+    public BookingResponse createBooking(BookingRequest request, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
 
         if (!request.getEndDate().isAfter(request.getStartDate())) {
             throw new InvalidBookingDateException(
@@ -73,6 +84,8 @@ public class BookingService {
         booking.setEndDate(request.getEndDate());
         booking.setTotalPrice(totalPrice);
         booking.setStatus(BookingStatus.PENDING);
+        booking.setUser(user);
+
 
         Booking savedBooking = bookingRepository.save(booking);
 
@@ -81,18 +94,32 @@ public class BookingService {
 
     public BookingResponse getBookingById(Long id) {
 
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException("Booking not found."));
+        User currentUser = getCurrentUser();
+        Booking booking = bookingRepository
+                .findByIdAndUserId(id, currentUser.getId())
+                .orElseThrow(() ->
+                        new BookingNotFoundException("Booking not found.")
+                );
 
         return bookingMapper.toResponse(booking);
     }
 
-    public Page<BookingResponse> getAllBookings(Pageable pageable){
-        return bookingRepository.findAll(pageable)
+    public Page<BookingResponse> getAllBookings(
+            Pageable pageable,
+            Authentication authentication
+    ) {
+        User user = (User) authentication.getPrincipal();
+
+        if (user.getRole() == UserRole.ADMIN) {
+            return bookingRepository.findAll(pageable)
+                    .map(bookingMapper::toResponse);
+        }
+
+        return bookingRepository.findAllByUserId(user.getId(), pageable)
                 .map(bookingMapper::toResponse);
     }
 
-    public BookingResponse deleteBookingById(Long id){
+    public BookingResponse deleteBookingById(Long id) {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException("Booking not found."));
         bookingRepository.delete(booking);
@@ -100,16 +127,24 @@ public class BookingService {
         return bookingMapper.toResponse(booking);
     }
 
-    public BookingResponse cancelBooking(Long id){
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException("Booking not found."));
+    public BookingResponse cancelBooking(Long id) {
+        User currentUser = getCurrentUser();
+        Booking booking = bookingRepository
+                .findByIdAndUserId(id, currentUser.getId())
+                .orElseThrow(() ->
+                        new BookingNotFoundException("Booking not found.")
+                );
 
-        if(booking.getStatus() == BookingStatus.CANCELLED){
-            throw new BookingAlreadyCancelledException("Booking is already cancelled");
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new BookingAlreadyCancelledException(
+                    "Booking is already cancelled"
+            );
         }
 
-        if(booking.getStatus() == BookingStatus.COMPLETED) {
-            throw new BookingCannotBeCanceledException("Completed booking cannot be cancelled");
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new BookingCannotBeCanceledException(
+                    "Completed booking cannot be cancelled"
+            );
         }
         booking.setStatus(BookingStatus.CANCELLED);
         Booking cancelledBooking = bookingRepository.save(booking);
