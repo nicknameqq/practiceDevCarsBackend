@@ -149,5 +149,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleFavoriteNotFoundException(FavoriteNotFoundException exception){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse( HttpStatus.NOT_FOUND.value(), exception.getMessage()));
     }
+    @ExceptionHandler(PaymentAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentAlreadyExistsException(PaymentAlreadyExistsException exception){
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse( HttpStatus.CONFLICT.value(), exception.getMessage()));
+    }
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentNotFoundException(PaymentNotFoundException exception){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(HttpStatus.NOT_FOUND.value(), exception.getMessage()));
+    }
 
 }
