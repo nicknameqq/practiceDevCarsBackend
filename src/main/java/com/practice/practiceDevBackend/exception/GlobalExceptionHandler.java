@@ -145,4 +145,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidCredentialsException(InvalidCredentialsException exception){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), exception.getMessage()));
     }
+    @ExceptionHandler(FavoriteNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleFavoriteNotFoundException(FavoriteNotFoundException exception){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse( HttpStatus.NOT_FOUND.value(), exception.getMessage()));
+    }
+
 }
