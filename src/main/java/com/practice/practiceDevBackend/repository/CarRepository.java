@@ -1,6 +1,7 @@
 package com.practice.practiceDevBackend.repository;
 
 import com.practice.practiceDevBackend.entity.Car;
+import com.practice.practiceDevBackend.entity.enums.CarStatus;
 import com.practice.practiceDevBackend.entity.enums.Transmission;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificationExecutor<Car> {
     Page<Car> findByBrandIgnoreCase(String brand, Pageable pageable); //пошук за брендом, не враховуючи регістр
     Page<Car> findByTransmission(Transmission transmission, Pageable pageable);
+    long countByStatus(CarStatus status);
 }
