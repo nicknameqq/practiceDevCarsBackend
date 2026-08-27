@@ -1,5 +1,6 @@
 package com.practice.practiceDevBackend.mapper;
 
+import com.practice.practiceDevBackend.dto.booking.BookingCarResponse;
 import com.practice.practiceDevBackend.dto.booking.BookingRequest;
 import com.practice.practiceDevBackend.dto.booking.BookingResponse;
 import com.practice.practiceDevBackend.entity.Booking;
@@ -18,6 +19,16 @@ public class BookingMapper {
         response.setEndDate(booking.getEndDate());
         response.setTotalPrice(booking.getTotalPrice());
         response.setStatus(booking.getStatus());
+
+        BookingCarResponse carResponse = new BookingCarResponse();
+
+        carResponse.setId(booking.getCar().getId());
+        carResponse.setBrand(booking.getCar().getBrand());
+        carResponse.setModel(booking.getCar().getModel());
+        carResponse.setYear(booking.getCar().getYear());
+        carResponse.setImage(booking.getCar().getImage());
+
+        response.setCar(carResponse);
 
         return response;
     }

@@ -22,4 +22,6 @@ public class BookingResponse {
     private BigDecimal totalPrice;
 
     private BookingStatus status;
+
+    private BookingCarResponse car;
 }
