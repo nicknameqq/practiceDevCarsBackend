@@ -182,4 +182,54 @@ public class BookingService {
 
         return bookingMapper.toResponse(cancelledBooking);
     }
+
+
+    public BookingResponse updateBookingStatus(
+            Long id,
+            BookingStatus newStatus
+    ) {
+
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() ->
+                        new BookingNotFoundException("Booking not found.")
+                );
+
+        BookingStatus currentStatus = booking.getStatus();
+
+        if (currentStatus == BookingStatus.CANCELLED) {
+            throw new BookingCannotBeCanceledException(
+                    "Cancelled booking status cannot be changed."
+            );
+        }
+
+        if (currentStatus == BookingStatus.COMPLETED) {
+            throw new BookingCannotBeCanceledException(
+                    "Completed booking status cannot be changed."
+            );
+        }
+
+        if (currentStatus == BookingStatus.PENDING
+                && newStatus != BookingStatus.ACTIVE
+                && newStatus != BookingStatus.CANCELLED) {
+
+            throw new IllegalArgumentException(
+                    "Pending booking can only become ACTIVE or CANCELLED."
+            );
+        }
+
+        if (currentStatus == BookingStatus.ACTIVE
+                && newStatus != BookingStatus.COMPLETED
+                && newStatus != BookingStatus.CANCELLED) {
+
+            throw new IllegalArgumentException(
+                    "Active booking can only become COMPLETED or CANCELLED."
+            );
+        }
+
+        booking.setStatus(newStatus);
+
+        return bookingMapper.toResponse(
+                bookingRepository.save(booking)
+        );
+    }
 }

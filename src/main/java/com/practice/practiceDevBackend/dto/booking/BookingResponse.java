@@ -24,4 +24,5 @@ public class BookingResponse {
     private BookingStatus status;
 
     private BookingCarResponse car;
+    private BookingUserResponse user;
 }

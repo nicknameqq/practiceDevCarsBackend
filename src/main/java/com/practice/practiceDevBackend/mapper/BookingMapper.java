@@ -3,6 +3,7 @@ package com.practice.practiceDevBackend.mapper;
 import com.practice.practiceDevBackend.dto.booking.BookingCarResponse;
 import com.practice.practiceDevBackend.dto.booking.BookingRequest;
 import com.practice.practiceDevBackend.dto.booking.BookingResponse;
+import com.practice.practiceDevBackend.dto.booking.BookingUserResponse;
 import com.practice.practiceDevBackend.entity.Booking;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,14 @@ public class BookingMapper {
         carResponse.setImage(booking.getCar().getImage());
 
         response.setCar(carResponse);
+
+        BookingUserResponse userResponse = new BookingUserResponse();
+
+        userResponse.setId(booking.getUser().getId());
+        userResponse.setUsername(booking.getUser().getUsername());
+        userResponse.setEmail(booking.getUser().getEmail());
+
+        response.setUser(userResponse);
 
         return response;
     }
