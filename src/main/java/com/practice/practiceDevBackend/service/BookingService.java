@@ -133,26 +133,42 @@ public class BookingService {
     }
 
     public BookingResponse cancelBooking(Long id) {
+
         User currentUser = getCurrentUser();
+
         Booking booking = bookingRepository
                 .findByIdAndUserId(id, currentUser.getId())
                 .orElseThrow(() ->
                         new BookingNotFoundException("Booking not found.")
                 );
 
-        if (booking.getStatus() == BookingStatus.CANCELLED) {
+        BookingStatus status = booking.getStatus();
+
+        if (status == BookingStatus.CANCELLED) {
             throw new BookingAlreadyCancelledException(
                     "Booking is already cancelled"
             );
         }
 
-        if (booking.getStatus() == BookingStatus.COMPLETED) {
+        if (status == BookingStatus.COMPLETED) {
             throw new BookingCannotBeCanceledException(
                     "Completed booking cannot be cancelled"
             );
         }
+
+        if (status != BookingStatus.PENDING
+                && status != BookingStatus.ACTIVE) {
+
+            throw new BookingCannotBeCanceledException(
+                    "Booking with status " + status + " cannot be cancelled"
+            );
+        }
+
         booking.setStatus(BookingStatus.CANCELLED);
-        Booking cancelledBooking = bookingRepository.save(booking);
+
+        Booking cancelledBooking =
+                bookingRepository.save(booking);
+
         return bookingMapper.toResponse(cancelledBooking);
     }
 

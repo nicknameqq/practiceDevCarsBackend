@@ -14,6 +14,7 @@ import com.practice.practiceDevBackend.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -24,6 +25,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
 
+    @Transactional
     public PaymentResponse createPayment(Long bookingId, Authentication authentication){
         User user = (User) authentication.getPrincipal();
 
@@ -40,12 +42,17 @@ public class PaymentService {
         }
 
         Payment payment = new Payment();
+
         payment.setBooking(booking);
         payment.setAmount(booking.getTotalPrice());
         payment.setStatus(PaymentStatus.PAID);
         payment.setCreatedAt(LocalDateTime.now());
 
         Payment savedPayment = paymentRepository.save(payment);
+
+        booking.setStatus(BookingStatus.ACTIVE);
+        bookingRepository.save(booking);
+
         return toResponse(savedPayment);
 
     }
