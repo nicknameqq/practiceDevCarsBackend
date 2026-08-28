@@ -2,8 +2,10 @@ package com.practice.practiceDevBackend.service;
 
 import com.practice.practiceDevBackend.dto.report.ReportSummaryResponse;
 import com.practice.practiceDevBackend.entity.enums.BookingStatus;
+import com.practice.practiceDevBackend.entity.enums.PaymentStatus;
 import com.practice.practiceDevBackend.repository.BookingRepository;
 import com.practice.practiceDevBackend.repository.CarRepository;
+import com.practice.practiceDevBackend.repository.PaymentRepository;
 import com.practice.practiceDevBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ public class ReportAdminService {
     private final UserRepository userRepository;
     private final CarRepository carRepository;
     private final BookingRepository bookingRepository;
+    private final PaymentRepository paymentRepository;
 
     public ReportSummaryResponse getSummary(){
         long totalUsers = userRepository.count();
@@ -38,9 +41,11 @@ public class ReportAdminService {
                 bookingRepository.countByStatus(BookingStatus.CANCELLED);
 
         BigDecimal totalRevenue =
-                bookingRepository.getTotalRevenue(
-                        BookingStatus.COMPLETED
+                paymentRepository.getTotalRevenue(
+                        PaymentStatus.PAID
                 );
+
+
 
         return new ReportSummaryResponse(
                 totalUsers,
