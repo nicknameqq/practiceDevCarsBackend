@@ -11,11 +11,13 @@ import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    boolean existsByCarIdAndStartDateLessThanAndEndDateGreaterThan(
+    boolean existsByCarIdAndStatusInAndStartDateLessThanAndEndDateGreaterThan(
             Long carId,
+            Collection<BookingStatus> statuses,
             LocalDate endDate,
             LocalDate startDate
     );

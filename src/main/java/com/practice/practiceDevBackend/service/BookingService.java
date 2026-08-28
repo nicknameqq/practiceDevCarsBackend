@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -55,12 +56,16 @@ public class BookingService {
 
 
         boolean alreadyBooked =
-                bookingRepository.existsByCarIdAndStartDateLessThanAndEndDateGreaterThan(
-                        car.getId(),
-                        request.getEndDate(),
-                        request.getStartDate()
-
-                );
+                bookingRepository
+                        .existsByCarIdAndStatusInAndStartDateLessThanAndEndDateGreaterThan(
+                                car.getId(),
+                                List.of(
+                                        BookingStatus.PENDING,
+                                        BookingStatus.ACTIVE
+                                ),
+                                request.getEndDate(),
+                                request.getStartDate()
+                        );
 
         if (alreadyBooked) {
             throw new BookingDateAlreadyBookedException(
@@ -148,6 +153,33 @@ public class BookingService {
         }
         booking.setStatus(BookingStatus.CANCELLED);
         Booking cancelledBooking = bookingRepository.save(booking);
+        return bookingMapper.toResponse(cancelledBooking);
+    }
+
+    public BookingResponse cancelBookingByAdmin(Long id) {
+
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() ->
+                        new BookingNotFoundException("Booking not found.")
+                );
+
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new BookingAlreadyCancelledException(
+                    "Booking is already cancelled"
+            );
+        }
+
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new BookingCannotBeCanceledException(
+                    "Completed booking cannot be cancelled"
+            );
+        }
+
+        booking.setStatus(BookingStatus.CANCELLED);
+
+        Booking cancelledBooking =
+                bookingRepository.save(booking);
+
         return bookingMapper.toResponse(cancelledBooking);
     }
 }

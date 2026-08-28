@@ -1,4 +1,4 @@
-package com.practice.practiceDevBackend.controller;
+package com.practice.practiceDevBackend.controller.Admin;
 
 import com.practice.practiceDevBackend.dto.car.CarRequest;
 import com.practice.practiceDevBackend.dto.car.CarResponse;

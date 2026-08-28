@@ -1,4 +1,4 @@
-package com.practice.practiceDevBackend.controller;
+package com.practice.practiceDevBackend.controller.Admin;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
