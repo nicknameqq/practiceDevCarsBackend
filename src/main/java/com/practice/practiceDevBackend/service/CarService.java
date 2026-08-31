@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.practice.practiceDevBackend.repository.CarSpecification;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -22,6 +23,7 @@ public class CarService {
 
     private final CarRepository carRepository;
     private final CarMapper carMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public Page<CarResponse> getAllCars(CarFilter filter, Pageable pageable) {
         Specification<Car> specification =

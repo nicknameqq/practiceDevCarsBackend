@@ -26,6 +26,8 @@ public class AuthService {
 
     public RegisterResponse register(RegisterRequest request){
 
+
+
         if(userRepository.existsByEmail(request.getEmail())){
             throw new EmailAlreadyRegisteredException("Email is already registered.");
         }
